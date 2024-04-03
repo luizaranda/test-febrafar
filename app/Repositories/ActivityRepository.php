@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Contracts\ActivityRepositoryInterface;
 use App\Models\Activity;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class ActivityRepository extends AbstractRepository implements ActivityRepositoryInterface
 {
@@ -37,5 +38,18 @@ class ActivityRepository extends AbstractRepository implements ActivityRepositor
             ->where('id', $id)
             ->where('user_id', $userId)
             ->get();
+    }
+
+    public function updateActivity(array $data, Activity $activity): bool
+    {
+        return $activity->fill($data)->save($data);
+    }
+
+    public function getActivityModelByUserAndId(int $id, int $userId): Model|null
+    {
+        return Activity::query()
+            ->where('id', $id)
+            ->where('user_id', $userId)
+            ->first();
     }
 }

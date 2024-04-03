@@ -4,6 +4,7 @@ namespace Tests\Feature\Controllers;
 
 use App\Http\Controllers\ActivityController;
 use App\Http\Requests\StoreActivityRequest;
+use App\Http\Requests\UpdateActivityRequest;
 use App\Models\Activity;
 use App\Models\User;
 use App\Repositories\ActivityRepository;
@@ -37,10 +38,10 @@ class ActivityControllerTest extends TestCase
         parent::tearDown();
     }
 
-    public function mockUser()
+    public function mockUser(int $id = 1)
     {
         $user = Mockery::mock(User::class);
-        $user->shouldReceive('getAttribute')->andReturn(1);
+        $user->shouldReceive('getAttribute')->andReturn($id);
         $user->shouldReceive('offsetExists')->andReturn(true);
         Auth::shouldReceive('user')->andReturn($user);
         return $user;
@@ -320,5 +321,53 @@ class ActivityControllerTest extends TestCase
         $responseData = $response->getData(true);
 
         $this->assertFalse($responseData['body']['result']);
+    }
+
+    public function testUpdateAuthorized()
+    {
+        $activityMock = Activity::factory()->create();
+        $this->mockUser($activityMock->user_id);
+
+        $activityBody = [
+            'title' => 'Test Activity 1',
+            'type' => 'Task',
+            'description' => 'some activity description',
+            'start_date' => '2024-04-02 10:00:00',
+            'due_date' => '2024-04-0402 11:00:00',
+            'status' => 'open',
+        ];
+        $request = Mockery::mock(UpdateActivityRequest::class);
+        $request->shouldReceive('validated')->andReturn($activityBody);
+
+        $activityService = Mockery::mock(ActivityService::class);
+        $activityService->shouldReceive('getActivityModelByUserAndId')->andReturn($activityMock);
+        $activityService->shouldReceive('update')
+            ->with($activityBody, $activityMock)
+            ->andReturn($activityMock->fill($activityBody));
+
+        $this->controller->setService($activityService);
+
+        $response = $this->controller->update($request, $activityMock->id);
+        $responseData = $response->getData(true);
+
+        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertArrayHasKey('body', $responseData);
+        $this->assertIsArray($responseData['body']['result']);
+        $this->assertNotEmpty($responseData['body']['result']);
+        $this->assertEquals($activityBody['title'], $responseData['body']['result']['title']);
+        $this->assertEquals($activityBody['type'], $responseData['body']['result']['type']);
+        $this->assertEquals($activityBody['description'], $responseData['body']['result']['description']);
+        $this->assertEquals($activityBody['start_date'], $responseData['body']['result']['start_date']);
+        $this->assertEquals($activityBody['due_date'], $responseData['body']['result']['due_date']);
+        $this->assertEquals($activityBody['status'], $responseData['body']['result']['status']);
+    }
+
+    public function testUpdateUnauthorized()
+    {
+        $response = $this->putJson('/api/activity/1');
+
+        $response->assertStatus(401)
+            ->assertContent('{"message":"Unauthenticated."}');
     }
 }

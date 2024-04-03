@@ -88,10 +88,25 @@ class ActivityController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * Passing ID to avoid ModelNotFoundException and show friendly error
+     * on not found
      */
-    public function update(UpdateActivityRequest $request, Activity $activity)
+    public function update(UpdateActivityRequest $request, int $id): JsonResponse
     {
-        //
+        return parent::execute(function () use ($request, $id) {
+            $userId = auth()->user()->id ?? null;
+            $activity = $this->getService()->getActivityModelByUserAndId($id, $userId);
+            if ($userId == null || $activity == null) {
+                abort(ResponseAlias::HTTP_UNAUTHORIZED, 'Unauthorized');
+            }
+            $data = $request->validated();
+            $result = $this->getService()->update($data, $activity);
+            if ($result) {
+                $this->setResponseHTTPCode(ResponseAlias::HTTP_OK);
+            }
+            return $activity;
+        });
     }
 
     /**

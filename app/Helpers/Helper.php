@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
 class Helper
@@ -22,13 +23,15 @@ class Helper
     /**
      * Gets the appropriate HTTP status code for a caught exception.
      *
-     * @param Throwable $e The caught exception.
+     * @param Throwable|HttpException $e The caught exception.
      * @return int The corresponding HTTP status code for the exception.
      */
-    public static function getStatusCode(Throwable $e): int
+    public static function getStatusCode(Throwable|HttpException $e): int
     {
-        return match ($e->getCode()) {
+        $code = $e->getStatusCode() ?? $e->getCode();
+        return match ($code) {
             404 => ResponseAlias::HTTP_NOT_FOUND,
+            401 => ResponseAlias::HTTP_UNAUTHORIZED,
             422, 400, 409 => ResponseAlias::HTTP_BAD_REQUEST,
             default => ResponseAlias::HTTP_INTERNAL_SERVER_ERROR,
         };
