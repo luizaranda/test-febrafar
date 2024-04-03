@@ -1,8 +1,10 @@
 <?php
 
-namespace Services;
+namespace App\Services;
 
-class AbstractService
+use App\Traits\AvailabilityWithDependency;
+
+abstract class AbstractService
 {
-
+    use AvailabilityWithDependency;
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,14 @@ class ActivityFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'title' => $this->faker->sentence,
+            'type' => $this->faker->word,
+            'description' => $this->faker->paragraph,
+            'start_date' => $this->faker->dateTimeBetween('-1 month', '+1 month'),
+            'due_date' => $this->faker->dateTimeBetween('+1 month', '+2 months'),
+            'completion_date' => $this->faker->optional()->dateTimeBetween('-1 month', '+1 month'),
+            'status' => $this->faker->randomElement(['open', 'completed']),
+            'user_id' => User::factory(),
         ];
     }
 }
