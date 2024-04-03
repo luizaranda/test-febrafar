@@ -29,8 +29,29 @@ class Helper
     {
         return match ($e->getCode()) {
             404 => ResponseAlias::HTTP_NOT_FOUND,
-            422, 400 => ResponseAlias::HTTP_BAD_REQUEST,
+            422, 400, 409 => ResponseAlias::HTTP_BAD_REQUEST,
             default => ResponseAlias::HTTP_INTERNAL_SERVER_ERROR,
+        };
+    }
+
+    /**
+     * Validates the given date against today's date and checks if it falls on a weekend.
+     *
+     * @param string $date The date to validate in 'Y-m-d' format
+     * @return bool Returns true if the date is valid and not a weekend, false otherwise
+     */
+    public static function validateDate(string $date): bool
+    {
+        $dateObj = \DateTime::createFromFormat('Y-m-d H:i:s', $date);
+        $today = new \DateTime();
+
+        if ($dateObj < $today) {
+            return false;
+        }
+        $dayOfWeek = $dateObj->format('N');
+        return match ($dayOfWeek) {
+            '6', '7' => false,
+            default => true
         };
     }
 }

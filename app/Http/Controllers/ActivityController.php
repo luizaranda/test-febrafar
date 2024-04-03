@@ -9,6 +9,7 @@ use App\Http\Resources\ActivityResource;
 use App\Models\Activity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response as ResponseAlias;
 
 class ActivityController extends Controller
 {
@@ -26,7 +27,7 @@ class ActivityController extends Controller
     public function index(Request $request): JsonResponse
     {
         return parent::execute(function () use ($request) {
-            $userId = auth()->user()->id;
+            $userId = auth()->user()->id ?? null;
             $result = $this->getService()->listAll([
                 'user_id' => $userId,
                 'start_date' => $request->get('start_date') ?? null,
@@ -39,34 +40,30 @@ class ActivityController extends Controller
         });
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreActivityRequest $request)
     {
-        //
+        $userId = auth()->user()->id ?? null;
+        if ($userId == null) {
+            abort(ResponseAlias::HTTP_UNAUTHORIZED, 'Unauthorized');
+        }
+        return parent::execute(function () use ($request, $userId) {
+            $data = $request->all();
+            $result = $this->getService()->create($data, $userId);
+            if ($result->exists()) {
+                $this->setResponseHTTPCode(ResponseAlias::HTTP_CREATED);
+            }
+            return $result;
+        });
     }
 
     /**
      * Display the specified resource.
      */
     public function show(Activity $activity)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Activity $activity)
     {
         //
     }
