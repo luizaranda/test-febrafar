@@ -31,4 +31,11 @@ class ActivityRepository extends AbstractRepository implements ActivityRepositor
             ->get();
     }
 
+    public function getByIdAndUserId(int $id, int $userId): Collection|array
+    {
+        return Activity::query()
+            ->where('id', $id)
+            ->where('user_id', $userId)
+            ->get();
+    }
 }
