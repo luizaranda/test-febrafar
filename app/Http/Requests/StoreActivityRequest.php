@@ -11,7 +11,7 @@ class StoreActivityRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,12 @@ class StoreActivityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => 'required|string|max:255',
+            'type' => 'required|string|max:255',
+            'description' => 'required|string',
+            'start_date' => 'required|date|before:due_date',
+            'due_date' => 'required|date',
+            'status' => 'required|in:open,completed'
         ];
     }
 }

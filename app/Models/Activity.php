@@ -28,12 +28,12 @@ class Activity extends Model
     public function scopeFilterByDateRange($query, $startDate, $dueDate)
     {
         if ($startDate != null && $dueDate != null) {
-            $query->whereBetween('start_date', [$startDate . " 00:00:00", $dueDate . " 23:59:59"])
-                ->orWhereBetween('due_date', [$startDate . " 00:00:00", $dueDate . " 23:59:59"]);
+            $query->whereBetween('start_date', [$startDate, $dueDate])
+                ->orWhereBetween('due_date', [$startDate, $dueDate]);
         } elseif ($startDate != null) {
-            $query->where('start_date', '>=', $startDate . " 00:00:00");
+            $query->where('start_date', '>=', $startDate);
         } elseif ($dueDate != null) {
-            $query->where('due_date', '<=', $dueDate . " 23:59:59");
+            $query->where('due_date', '<=', $dueDate);
         }
         return $query;
     }

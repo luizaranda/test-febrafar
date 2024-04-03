@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ErrorHelper;
 use App\Helpers\Helper;
 use App\Traits\AvailabilityWithService;
 use Closure;
@@ -46,23 +45,20 @@ class Controller extends BaseController
 
     protected function execute(Closure $closure): \Illuminate\Http\JsonResponse
     {
-        $error = $error_type = $result = $complement = null;
+        $error = $error_type = $result = null;
         $status = false;
 
         try {
             $result = $closure();
             $status = true;
-            $trace = null;
         } catch (ModelNotFoundException|NotFoundHttpException|Throwable $th) {
             $error_type = get_class($th);
             $error = $th->getMessage();
-            $trace = $this->trace ? $th->getTraceAsString() : null;
-            $complement = $th->getFile() . ':' . $th->getLine();
             $this->convertHTTPCodeToBadOnCaseError(Helper::getStatusCode($th));
         }
 
         $defaultJsonResponse = Helper::createDefaultJsonToResponse($status, compact(
-            'error', 'error_type', 'result', 'complement', 'trace'
+            'error', 'error_type', 'result'
         ));
 
         return response()->json($defaultJsonResponse, $this->getResponseHTTPCode());
