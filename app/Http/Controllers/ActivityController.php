@@ -6,7 +6,6 @@ use App\Contracts\ActivityServiceInterface;
 use App\Http\Requests\StoreActivityRequest;
 use App\Http\Requests\UpdateActivityRequest;
 use App\Http\Resources\ActivityResource;
-use App\Models\Activity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response as ResponseAlias;
@@ -111,9 +110,22 @@ class ActivityController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     *  Passing ID to avoid ModelNotFoundException and show friendly error
+     *  on not found
      */
-    public function destroy(Activity $activity)
+    public function destroy(int $id): JsonResponse
     {
-        //
+        return parent::execute(function () use ($id) {
+            $userId = auth()->user()->id ?? null;
+            $activity = $this->getService()->getActivityModelByUserAndId($id, $userId);
+            if ($userId == null || $activity == null) {
+                abort(ResponseAlias::HTTP_UNAUTHORIZED, 'Unauthorized');
+            }
+            $result = $this->getService()->destroy($id);
+            if ($result) {
+                $this->setResponseHTTPCode(ResponseAlias::HTTP_NO_CONTENT);
+            }
+        });
     }
 }

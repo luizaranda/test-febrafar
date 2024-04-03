@@ -54,4 +54,9 @@ class ActivityService extends AbstractService implements ActivityServiceInterfac
     {
         return $this->getDependency('repository')->getActivityModelByUserAndId($id, $userId);
     }
+
+    public function destroy(int $id)
+    {
+        return $this->getDependency('repository')->deleteActivity($id);
+    }
 }

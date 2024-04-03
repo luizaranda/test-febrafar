@@ -370,4 +370,31 @@ class ActivityControllerTest extends TestCase
         $response->assertStatus(401)
             ->assertContent('{"message":"Unauthenticated."}');
     }
+
+    public function testDeleteUnauthorized()
+    {
+        $response = $this->deleteJson('/api/activity/1');
+
+        $response->assertStatus(401)
+            ->assertContent('{"message":"Unauthenticated."}');
+    }
+
+    public function testDeleteAuthorized()
+    {
+        $activityMock = Activity::factory()->create();
+        $this->mockUser($activityMock->user_id);
+
+        $activityService = Mockery::mock(ActivityService::class);
+        $activityService->shouldReceive('getActivityModelByUserAndId')->andReturn($activityMock);
+        $activityService->shouldReceive('destroy')
+            ->with($activityMock->id)
+            ->andReturn(true);
+
+        $this->controller->setService($activityService);
+
+        $response = $this->controller->destroy($activityMock->id);
+
+        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertEquals(204, $response->getStatusCode());
+    }
 }

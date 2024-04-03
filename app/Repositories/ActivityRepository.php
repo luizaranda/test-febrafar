@@ -52,4 +52,9 @@ class ActivityRepository extends AbstractRepository implements ActivityRepositor
             ->where('user_id', $userId)
             ->first();
     }
+
+    public function deleteActivity(int $id): bool
+    {
+        return Activity::destroy($id);
+    }
 }
