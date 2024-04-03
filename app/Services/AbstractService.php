@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use App\Traits\AvailabilityWithDependency;
+use App\Traits\AvailabilityWithRepository;
 
 abstract class AbstractService
 {
-    use AvailabilityWithDependency;
+    use AvailabilityWithRepository;
 }

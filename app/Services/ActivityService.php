@@ -12,12 +12,12 @@ class ActivityService extends AbstractService implements ActivityServiceInterfac
 {
     public function __construct(ActivityRepositoryInterface $repository)
     {
-        $this->setDependency('repository', $repository);
+        $this->setRepository($repository);
     }
 
     public function listAll(array $filters = [])
     {
-        return $this->getDependency('repository')->listAll($filters);
+        return $this->getRepository()->listAll($filters);
     }
 
     /**
@@ -25,8 +25,7 @@ class ActivityService extends AbstractService implements ActivityServiceInterfac
      */
     public function create(array $data, int $userId)
     {
-        $repository = $this->getDependency('repository');
-        $activity = $repository->getActivityByDateAndUserId($userId, $data);
+        $activity = $this->getRepository()->getActivityByDateAndUserId($userId, $data);
         if (count($activity) > 0) {
             throw new Exception("Activity conflict on same date", 409);
         }
@@ -37,26 +36,26 @@ class ActivityService extends AbstractService implements ActivityServiceInterfac
             throw new Exception("Invalid due date", 400);
         }
 
-        return $this->getDependency('repository')->create($data, $userId);
+        return $this->getRepository()->create($data, $userId);
     }
 
     public function getByIdAndUserId(int $id, int $userId)
     {
-        return $this->getDependency('repository')->getByIdAndUserId($id, $userId);
+        return $this->getRepository()->getByIdAndUserId($id, $userId);
     }
 
     public function update(array $data, Activity $activity)
     {
-        return $this->getDependency('repository')->updateActivity($data, $activity);
+        return $this->getRepository()->updateActivity($data, $activity);
     }
 
     public function getActivityModelByUserAndId(int $id, int $userId)
     {
-        return $this->getDependency('repository')->getActivityModelByUserAndId($id, $userId);
+        return $this->getRepository()->getActivityModelByUserAndId($id, $userId);
     }
 
     public function destroy(int $id)
     {
-        return $this->getDependency('repository')->deleteActivity($id);
+        return $this->getRepository()->deleteActivity($id);
     }
 }
