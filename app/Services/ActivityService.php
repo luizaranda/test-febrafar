@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Contracts\ActivityRepositoryInterface;
 use App\Contracts\ActivityServiceInterface;
 use App\Helpers\Helper;
+use App\Models\Activity;
 use Exception;
 
 class ActivityService extends AbstractService implements ActivityServiceInterface
@@ -42,5 +43,15 @@ class ActivityService extends AbstractService implements ActivityServiceInterfac
     public function getByIdAndUserId(int $id, int $userId)
     {
         return $this->getDependency('repository')->getByIdAndUserId($id, $userId);
+    }
+
+    public function update(array $data, Activity $activity)
+    {
+        return $this->getDependency('repository')->updateActivity($data, $activity);
+    }
+
+    public function getActivityModelByUserAndId(int $id, int $userId)
+    {
+        return $this->getDependency('repository')->getActivityModelByUserAndId($id, $userId);
     }
 }
