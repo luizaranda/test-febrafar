@@ -38,4 +38,9 @@ class ActivityService extends AbstractService implements ActivityServiceInterfac
 
         return $this->getDependency('repository')->create($data, $userId);
     }
+
+    public function getByIdAndUserId(int $id, int $userId)
+    {
+        return $this->getDependency('repository')->getByIdAndUserId($id, $userId);
+    }
 }

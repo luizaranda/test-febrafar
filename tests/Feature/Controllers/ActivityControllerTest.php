@@ -14,7 +14,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Mockery;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 class ActivityControllerTest extends TestCase
@@ -44,6 +43,7 @@ class ActivityControllerTest extends TestCase
         $user->shouldReceive('getAttribute')->andReturn(1);
         $user->shouldReceive('offsetExists')->andReturn(true);
         Auth::shouldReceive('user')->andReturn($user);
+        return $user;
     }
 
     public function testIndexReturnsActivitiesWithFilters()
@@ -211,12 +211,10 @@ class ActivityControllerTest extends TestCase
 
     public function testStoreReturnsUnauthorizedWithoutUserId()
     {
-        $request = Mockery::mock(StoreActivityRequest::class);
+        $response = $this->postJson('/api/activity', []);
 
-        $this->expectException(HttpException::class);
-        $this->expectExceptionMessage("Unauthorized");
-
-        $this->controller->store($request);
+        $response->assertStatus(401)
+            ->assertContent('{"message":"Unauthenticated."}');
     }
 
     public function testStoreReturnsActivityHasBeenCreated()
@@ -278,5 +276,49 @@ class ActivityControllerTest extends TestCase
         $this->assertArrayHasKey('user_id', $responseData['body']['result']['rows'][0]);
         $this->assertArrayHasKey('created_at', $responseData['body']['result']['rows'][0]);
         $this->assertArrayHasKey('updated_at', $responseData['body']['result']['rows'][0]);
+    }
+
+    public function testShowAuthorizedWithData()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $activityService = $this->createMock(ActivityService::class);
+        $activityService->expects($this->once())
+            ->method('getByIdAndUserId')
+            ->with($this->equalTo(1), $this->equalTo($user->id))
+            ->willReturn(['data' => 'result']);
+
+        $this->controller->setService($activityService);
+
+        $response = $this->controller->show(1);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertJson(json_encode(['data' => 'result']));
+    }
+
+    public function testShowUnauthorized()
+    {
+        $response = $this->getJson('/api/activity/1');
+
+        $response->assertStatus(401)
+            ->assertContent('{"message":"Unauthenticated."}');
+    }
+
+    public function testShowNotFound()
+    {
+        $user = $this->mockUser();
+
+        $activityService = Mockery::mock(ActivityService::class);
+        $activityService->shouldReceive('getByIdAndUserId')
+            ->with($this->equalTo(1), $this->equalTo($user->id))
+            ->andReturn([]);
+
+        $this->controller->setService($activityService);
+
+        $response = $this->controller->show(1);
+        $responseData = $response->getData(true);
+
+        $this->assertFalse($responseData['body']['result']);
     }
 }

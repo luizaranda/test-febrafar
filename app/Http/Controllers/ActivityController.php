@@ -28,6 +28,9 @@ class ActivityController extends Controller
     {
         return parent::execute(function () use ($request) {
             $userId = auth()->user()->id ?? null;
+            if ($userId == null) {
+                abort(ResponseAlias::HTTP_UNAUTHORIZED, 'Unauthorized');
+            }
             $result = $this->getService()->listAll([
                 'user_id' => $userId,
                 'start_date' => $request->get('start_date') ?? null,
@@ -46,11 +49,11 @@ class ActivityController extends Controller
      */
     public function store(StoreActivityRequest $request)
     {
-        $userId = auth()->user()->id ?? null;
-        if ($userId == null) {
-            abort(ResponseAlias::HTTP_UNAUTHORIZED, 'Unauthorized');
-        }
-        return parent::execute(function () use ($request, $userId) {
+        return parent::execute(function () use ($request) {
+            $userId = auth()->user()->id ?? null;
+            if ($userId == null) {
+                abort(ResponseAlias::HTTP_UNAUTHORIZED, 'Unauthorized');
+            }
             $data = $request->all();
             $result = $this->getService()->create($data, $userId);
             if ($result->exists()) {
@@ -62,10 +65,25 @@ class ActivityController extends Controller
 
     /**
      * Display the specified resource.
+     *
+     * Passing ID to avoid ModelNotFoundException and show friendly error
+     * on not found
      */
-    public function show(Activity $activity)
+    public function show(int $id): JsonResponse
     {
-        //
+        return parent::execute(function () use ($id) {
+            $userId = auth()->user()->id ?? null;
+            if ($userId == null) {
+                abort(ResponseAlias::HTTP_UNAUTHORIZED, 'Unauthorized');
+            }
+            $result = $this->getService()->getByIdAndUserId($id, $userId);
+            if (count($result) > 0) {
+                $this->setResponseHTTPCode(ResponseAlias::HTTP_OK);
+                return $result;
+            }
+            $this->setResponseHTTPCode(ResponseAlias::HTTP_NOT_FOUND);
+            return false;
+        });
     }
 
     /**
