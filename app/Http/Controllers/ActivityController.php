@@ -70,6 +70,20 @@ class ActivityController extends Controller
      *      summary="List activities",
      *      description="Retrieve a list of activities for the authenticated user.",
      *      security={{"bearerAuth": {}}},
+     *      @OA\Parameter(
+     *           name="start_date",
+     *           in="path",
+     *           required=false,
+     *           description="Ex.: 2024-04-04 13:00:00",
+     *           @OA\Schema(type="string")
+     *       ),
+     *      @OA\Parameter(
+     *           name="due_date",
+     *           in="path",
+     *           required=false,
+     *           description="Ex.: 2024-04-04 13:00:00",
+     *           @OA\Schema(type="string")
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",

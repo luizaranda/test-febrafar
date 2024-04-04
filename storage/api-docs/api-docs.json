@@ -14,6 +14,26 @@
                 "summary": "List activities",
                 "description": "Retrieve a list of activities for the authenticated user.",
                 "operationId": "getActivities",
+                "parameters": [
+                    {
+                        "name": "start_date",
+                        "in": "path",
+                        "description": "Ex.: 2024-04-04 13:00:00",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "due_date",
+                        "in": "path",
+                        "description": "Ex.: 2024-04-04 13:00:00",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",
