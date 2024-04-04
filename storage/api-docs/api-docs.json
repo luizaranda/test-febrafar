@@ -1,0 +1,316 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Activity API",
+        "description": "API for managing activities",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/activities": {
+            "get": {
+                "tags": [
+                    "Activity"
+                ],
+                "summary": "List activities",
+                "description": "Retrieve a list of activities for the authenticated user.",
+                "operationId": "getActivities",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Activity"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Activity"
+                ],
+                "summary": "Create a new activity",
+                "description": "Create a new activity for the authenticated user.",
+                "operationId": "createActivity",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ActivityRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Activity"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request (validation errors)"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/activities/{id}": {
+            "get": {
+                "tags": [
+                    "Activity"
+                ],
+                "summary": "Get activity details",
+                "description": "Retrieve details of a specific activity for the authenticated user.",
+                "operationId": "getActivityById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Activity"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Activity"
+                ],
+                "summary": "Update an activity",
+                "description": "Update an existing activity for the authenticated user.",
+                "operationId": "updateActivity",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ActivityRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Activity"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request (validation errors)"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Activity"
+                ],
+                "summary": "Delete an activity",
+                "description": "Delete an existing activity for the authenticated user.",
+                "operationId": "deleteActivity",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Activity": {
+                "properties": {
+                    "id": {
+                        "description": "ID of the activity",
+                        "type": "string"
+                    },
+                    "title": {
+                        "description": "Title of the activity",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "Type of the activity",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Description of the activity",
+                        "type": "string"
+                    },
+                    "start_date": {
+                        "description": "Start date of the activity",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "due_date": {
+                        "description": "Due date of the activity",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "completion_date": {
+                        "description": "Completion date of the activity (optional)",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "status": {
+                        "description": "Status of the activity",
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "description": "ID of the user who created the activity",
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "description": "Date and time when the activity was created",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Date and time when the activity was updated",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "ActivityRequest": {
+                "properties": {
+                    "title": {
+                        "description": "Title of the activity",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "Type of the activity",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Description of the activity",
+                        "type": "string"
+                    },
+                    "start_date": {
+                        "description": "Start date of the activity",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "due_date": {
+                        "description": "Due date of the activity",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "completion_date": {
+                        "description": "Completion date of the activity (optional)",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "status": {
+                        "description": "Status of the activity",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    }
+}
